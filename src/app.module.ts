@@ -13,6 +13,7 @@ import { LikeModule } from './like/like.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { CategoiresModule } from './categoires/categoires.module';
+import { FriendshipModule } from './friendship/friendship.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { CategoiresModule } from './categoires/categoires.module';
     PostsModule,
     LikeModule,
     CategoiresModule,
+    FriendshipModule,
   ],
 })
 export class AppModule {}

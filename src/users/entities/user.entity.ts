@@ -7,10 +7,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { accountStatus } from '../enums/account-status.enum';
 import { Post } from 'src/posts/entities/post.entity';
 import { Like } from 'src/like/entities/like.entity';
+import { Friendship } from 'src/friendship/entities/friendship.entity';
 
 @Entity('user')
 export class User {
@@ -52,4 +55,18 @@ export class User {
 
   @OneToMany(() => Like, (like) => like.user)
   likes: Like[];
+
+  @OneToMany(() => Friendship, (friendship) => friendship.requester)
+  sentFriendRequests: Friendship[];
+
+  @OneToMany(() => Friendship, (friendship) => friendship.addressee)
+  receivedFriendRequests: Friendship[];
+
+  @ManyToMany(() => User)
+  @JoinTable({
+    name: 'user_blocks',
+    joinColumn: { name: 'userId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'blockedId', referencedColumnName: 'id' },
+  })
+  blockedUsers: User[];
 }

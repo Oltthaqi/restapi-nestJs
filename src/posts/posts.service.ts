@@ -455,7 +455,15 @@ export class PostsService {
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.categories', 'categories')
       .leftJoinAndSelect('post.image', 'image')
+      .leftJoinAndSelect('post.user', 'user')
+      .leftJoin(
+        'user_blocks',
+        'user_blocks',
+        '(user_blocks.userId = :currentUserId AND user_blocks.blockedId = user.id) OR (user_blocks.blockedId = :currentUserId AND user_blocks.userId = user.id)',
+        { currentUserId: userId },
+      )
       .where('post.id IN (:...ids)', { ids: finalPostIds })
+      .andWhere('user_blocks.userId IS NULL AND user_blocks.blockedId IS NULL')
       .skip(skip)
       .take(limit);
 
