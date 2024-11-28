@@ -128,12 +128,14 @@ export class PostsController {
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.USER)
   findAll(
+    @Req() req: ExpressRequest,
     @Query('search') search: string,
     @Query('catId') catId: string[],
     @Query('page') page: number,
     @Query('limit') limit: number,
   ) {
-    return this.postsService.findAll(page, limit, catId, search);
+    const user = req.user as User;
+    return this.postsService.findAll(page, limit, catId, search, user.id);
   }
   @Get('admin:id')
   @UseGuards(RolesGuard)

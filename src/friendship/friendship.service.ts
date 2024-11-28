@@ -172,18 +172,16 @@ export class FriendshipService {
     }
 
     user.blockedUsers.push(userToBlock);
-    let friendship = await this.friendshipRepo.findOne({
-      where: {
-        addresseeId: id,
-        requesterId: userId,
-      },
+    const friendship = await this.friendshipRepo.findOne({
+      where: [
+        { addresseeId: id, requesterId: userId },
+        { addresseeId: userId, requesterId: id },
+      ],
     });
-    if (!friendship) {
-      friendship = await this.friendshipRepo.findOne({
-        where: { addresseeId: userId, id },
-      });
+
+    if (friendship) {
+      await this.friendshipRepo.remove(friendship);
     }
-    await this.friendshipRepo.remove(friendship);
 
     return await this.userRepo.save(user);
   }

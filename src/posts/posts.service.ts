@@ -321,6 +321,7 @@ export class PostsService {
     limit: number,
     catIds: string[],
     title: string,
+    userId: number,
   ): Promise<{
     page: number;
     totalRecords: number;
@@ -345,6 +346,20 @@ export class PostsService {
         type: UniversalType.POST,
       })
       .leftJoinAndSelect('post.categories', 'category')
+      .leftJoinAndSelect('post.user', 'user')
+      .leftJoin(
+        'user_blocks',
+        'user_blocks',
+        '(user_blocks.userId = :currentUserId AND user_blocks.blockedId = user.id) OR (user_blocks.blockedId = :currentUserId AND user_blocks.userId = user.id)',
+        { currentUserId: userId },
+      )
+      .where(
+        new Brackets((qb) => {
+          qb.where('user_blocks.userId IS NULL').andWhere(
+            'user_blocks.blockedId IS NULL',
+          );
+        }),
+      )
       .skip(skip)
       .take(limit);
 
@@ -364,17 +379,10 @@ export class PostsService {
     }
 
     if (parsedcatId.length > 0) {
-      if (title) {
-        query.andWhere(
-          'post.id IN (SELECT postId FROM postscategories WHERE categoryId IN (:...catIds))',
-          { catIds: parsedcatId },
-        );
-      } else {
-        query.where(
-          'post.id IN (SELECT postId FROM postscategories WHERE categoryId IN (:...catIds))',
-          { catIds: parsedcatId },
-        );
-      }
+      query.andWhere(
+        'post.id IN (SELECT postId FROM postscategories WHERE categoryId IN (:...catIds))',
+        { catIds: parsedcatId },
+      );
     }
 
     const [data, totalRecords] = await query.getManyAndCount();
