@@ -27,6 +27,7 @@ import { UserRole } from 'src/auth/enums/user-role.enum';
 
 import { User } from './entities/user.entity';
 import { Request as ExpressRequest } from 'express';
+import { SessionGuard } from 'src/auth/guards/session.guard';
 
 @ApiBearerAuth('access-token')
 @Controller('users')
@@ -44,7 +45,7 @@ export class UsersController {
   @Get()
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, SessionGuard)
   @Roles(UserRole.ADMIN)
   async findAll(@Query('page') page: number, @Query('limit') limit: number) {
     return await this.usersService.findAll(page, limit);

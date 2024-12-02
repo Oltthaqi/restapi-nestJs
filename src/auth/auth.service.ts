@@ -15,6 +15,8 @@ import { RegisterUsersDto } from './dto/register-User.dto';
 import { EmailService } from 'src/message/email.service';
 import { UsersService } from 'src/users/users.service';
 import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -63,18 +65,43 @@ export class AuthService {
     return newUser;
   }
 
-  async login(user: User) {
+  async login(user: User, res: Response) {
     if (user.accountStatus === 'inactive') {
       throw new ForbiddenException('Account is not verified.');
     }
     const payload = { username: user.username, sub: user.id, role: user.role };
-    return {
-      access_token: this.jwtService.sign(payload),
-      refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+
+    res.locals.userSession = {
+      userId: user.id,
+      username: user.username,
+      role: user.role,
     };
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === 'production',
+    });
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      maxAge: 604800000,
+      secure: process.env.NODE_ENV === 'production',
+    });
+
+    res.status(200).json({
+      message: 'Login successful',
+    });
   }
 
-  async verifyRefreshToken(refreshToken: string): Promise<User | null> {
+  async verifyRefreshToken(req: Request): Promise<User | null> {
+    const refreshToken = req.cookies?.refresh_token;
+    if (!refreshToken) {
+      return null;
+    }
+
     try {
       const payload = this.jwtService.verify(refreshToken, {
         secret: this.configService.get('JWT_SECRET'),

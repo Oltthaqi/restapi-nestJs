@@ -454,7 +454,6 @@ export class PostsService {
     }
     const categoryIds = await this.getCatIds(postIds);
     const catIds = categoryIds.map((category) => category.id);
-
     const postIdsFromCategories = await this.postIdsFromCst(catIds);
 
     const finalPostIds = postIdsFromCategories.map((post) => post.id);
