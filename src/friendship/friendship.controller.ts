@@ -32,6 +32,8 @@ export class FriendshipController {
     @Req() req: ExpressRequest,
   ) {
     const user = req.user as User;
+    console.log(req.user);
+
     return this.friendshipService.create(user.id, createFriendshipDto);
   }
 

@@ -27,13 +27,16 @@ export class FriendshipService {
         addresseeId: createFriendshipDto.addresseeId,
       },
     });
+    console.log(friendshipExists);
+
     if (friendshipExists) {
-      if (friendshipExists.status == FriendshipStatus.PENDING) {
+      if (friendshipExists.status === FriendshipStatus.PENDING) {
         throw new BadRequestException(
           'You already send a friend request to this user ',
         );
       }
-      if (friendshipExists.status == FriendshipStatus.ACCEPTED) {
+
+      if (friendshipExists.status === FriendshipStatus.ACCEPTED) {
         throw new BadRequestException('you are friends');
       }
     }
@@ -61,6 +64,7 @@ export class FriendshipService {
     addresseeId: number,
   ) {
     const friendship = await this.friendshipRepo.findOne({ where: { id } });
+
     if (friendship.addresseeId !== addresseeId) {
       throw new UnauthorizedException(
         'You cant accept or reject this friend request ',
@@ -172,7 +176,7 @@ export class FriendshipService {
     }
 
     user.blockedUsers.push(userToBlock);
-    const friendship = await this.friendshipRepo.findOne({
+    const friendship = await this.friendshipRepo.find({
       where: [
         { addresseeId: id, requesterId: userId },
         { addresseeId: userId, requesterId: id },

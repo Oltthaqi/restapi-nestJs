@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber } from 'class-validator';
-import { FriendshipStatus } from '../enum/status.enum';
+// import { FriendshipStatus } from '../enum/status.enum';
 
 export class CreateFriendshipDto {
   @ApiProperty()
@@ -10,5 +10,5 @@ export class CreateFriendshipDto {
 
   createdAt: Date;
 
-  status: FriendshipStatus.PENDING;
+  // status: FriendshipStatus.PENDING;
 }
