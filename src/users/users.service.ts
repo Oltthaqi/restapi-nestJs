@@ -220,6 +220,11 @@ export class UsersService {
     if (!password) {
       throw new BadRequestException(password);
     }
+    if (password.length < 6) {
+      throw new BadRequestException(
+        'Password must be at least 6 characters long',
+      );
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
 
